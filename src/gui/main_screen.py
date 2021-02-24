@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
+from tkinter import font
 
 class ScrollableFrame(ttk.Frame):
   def __init__(self, container, *args, **kwargs):
@@ -26,52 +27,64 @@ class MainScreen:
 
     self.root.title("Password Manager")
     self.frame = ttk.Frame(self.root)
-    self.frame.grid()
+    self.frame.grid(column=0, row=1, sticky="nsew", padx=10, pady=10)
 
-    ttk.Label(self.frame, text="Welcome, user").grid(column=0,row=0)
-    ttk.Label(self.frame, text="Your stored passwords:").grid(column=0,row=1)
+    ttk.Separator(self.frame, orient="horizontal").grid(column=0, row=0, columnspan=2, sticky="nsew")
+    ttk.Label(self.frame, text="Your stored passwords:").grid(column=0,row=1, sticky="w")
     
     self.table = ScrollableFrame(self.frame)
-    self.table.grid(column=0, row=2, columnspan=2)
+    self.table.grid(column=0, row=2, columnspan=2, sticky="nsew")
     
+    ttk.Separator(self.frame, orient="horizontal").grid(column=0, row=3, columnspan=2, sticky="nsew")
+
     self.input_name = StringVar()
     self.input_userid = StringVar()
     self.input_password = StringVar()
-    ttk.Label(self.frame, text="Add an entry:").grid(column=0,row=3)
 
-    ttk.Label(self.frame, text="Name:").grid(column=0,row=4)
-    ttk.Entry(self.frame, textvariable=self.input_name).grid(column=1,row=4)
+    ttk.Label(self.frame, text="Add an entry:").grid(column=0, row=4, columnspan=2, sticky="we", padx=5, pady=5)
 
-    ttk.Label(self.frame, text="Userid:").grid(column=0,row=5)
-    ttk.Entry(self.frame, textvariable=self.input_userid).grid(column=1,row=5)
+    ttk.Label(self.frame, text="Name:").grid(column=0, row=5, sticky="we", padx=5, pady=5)
+    ttk.Entry(self.frame, width=30, textvariable=self.input_name).grid(column=1, row=5, sticky="e", padx=5, pady=5)
 
-    ttk.Label(self.frame, text="Password:").grid(column=0,row=6)
-    ttk.Entry(self.frame, textvariable=self.input_password).grid(column=1,row=6)
+    ttk.Label(self.frame, text="Userid:").grid(column=0, row=6, sticky="w", padx=5, pady=5)
+    ttk.Entry(self.frame, width=30, textvariable=self.input_userid).grid(column=1, row=6, sticky="e", padx=5, pady=5)
 
-    ttk.Button(self.frame, text="Add", command=self.add_entry).grid(column=1,row=7)
+    ttk.Label(self.frame, text="Password:").grid(column=0, row=7, sticky="w", padx=5, pady=5)
+    ttk.Entry(self.frame, width=30, textvariable=self.input_password).grid(column=1, row=7, sticky="e", padx=5, pady=5)
+
+    ttk.Button(self.frame, text="Add", command=self.add_entry).grid(column=1, row=8, sticky="e", padx=5, pady=5)
 
   def reload(self):
     for child in self.table.scrollable_frame.winfo_children():
       child.destroy()
-    ttk.Label(self.table.scrollable_frame, text="name").grid(column=0, row=0)
-    ttk.Label(self.table.scrollable_frame, text="userid").grid(column=1, row=0)
-    ttk.Label(self.table.scrollable_frame, text="password").grid(column=2, row=0)
-    ttk.Label(self.table.scrollable_frame, text="action").grid(column=3, row=0)
+    ttk.Label(self.table.scrollable_frame, font=font.Font(weight="bold"), text="Name").grid(column=0, row=0, padx=5, pady=5)
+    ttk.Label(self.table.scrollable_frame, font=font.Font(weight="bold"), text="Email/Username").grid(column=1, row=0, padx=5, pady=5)
+    ttk.Label(self.table.scrollable_frame, font=font.Font(weight="bold"), text="Password").grid(column=2, row=0, padx=5, pady=5)
+    ttk.Label(self.table.scrollable_frame, font=font.Font(weight="bold"), text="Action").grid(column=3, row=0, sticky="e", padx=5, pady=5)
 
     cnt = 1
     entries = self.dbc.get_entries()
     for e in entries:
-      print(e)
-      ttk.Label(self.table.scrollable_frame, text=e[1]).grid(column=0, row=cnt)
-      ttk.Label(self.table.scrollable_frame, text=e[2]).grid(column=1, row=cnt)
-      ttk.Label(self.table.scrollable_frame, text=e[3]).grid(column=2, row=cnt)
-      ttk.Button(self.table.scrollable_frame, text="Delete",command=lambda x=e[0]:self.delete_entry(x)).grid(column=3, row=cnt)
+      ttk.Label(self.table.scrollable_frame, text=e[1]).grid(column=0, row=cnt, padx=5, pady=5)
+      ttk.Label(self.table.scrollable_frame, text=e[2]).grid(column=1, row=cnt, padx=5, pady=5)
+      ttk.Label(self.table.scrollable_frame, text=e[3]).grid(column=2, row=cnt, padx=5, pady=5)
+      ttk.Button(self.table.scrollable_frame, text="Delete",command=lambda x=e[0]:self.delete_entry(x)).grid(column=3, row=cnt, padx=5, pady=5)
       cnt += 1
         
   def delete_entry(self, entry_id):
+    ok = messagebox.askyesno("Confirm deletion", "Delete entry?")
+    if not ok: return
     self.dbc.remove_entry(entry_id)
     self.reload()
 
   def add_entry(self):
+    if self.input_name.get() == "" or self.input_userid.get() == "" or self.input_password.get() == "":
+      messagebox.showinfo(message="One or more fields are empty, try again")
+      return
+    ok = messagebox.askyesno("Confirm adding entry", "Add entry (%s, %s, %s)?" % (self.input_name.get(), self.input_userid.get(), self.input_password.get()))
+    if not ok: return
     self.dbc.add_entry(self.input_name.get(), self.input_userid.get(), self.input_password.get())
     self.reload()
+    self.input_name.set("")
+    self.input_userid.set("")
+    self.input_password.set("")

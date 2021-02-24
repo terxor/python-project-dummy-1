@@ -8,7 +8,7 @@ class InitScreen:
     self.root = root
     self.dbc = dbc
 
-    self.root.title("setup")
+    self.root.title("First time setup")
     self.frame = ttk.Frame(self.root, padding="10 10 10 10")
     self.frame.grid()
 
@@ -16,15 +16,15 @@ class InitScreen:
     self.conf_pass = StringVar()
 
     labelText = "To start using the password manager, set a master password"
-    ttk.Label(self.frame, text=labelText).grid(column=0,row=0)
+    ttk.Label(self.frame, text=labelText).grid(column=0,row=0, columnspan=2, padx=10, pady=10)
 
-    ttk.Label(self.frame, text="Enter password").grid(column=0,row=1)
-    ttk.Entry(self.frame, textvariable=self.password).grid(column=1, row=1)
+    ttk.Label(self.frame, text="Enter password").grid(column=0,row=1, padx=10, pady=10)
+    ttk.Entry(self.frame, width=30, textvariable=self.password).grid(column=1, row=1, padx=10, pady=10)
 
-    ttk.Label(self.frame, text="Confirm").grid(column=0,row=2)
-    ttk.Entry(self.frame, textvariable=self.conf_pass).grid(column=1, row=2)
+    ttk.Label(self.frame, text="Confirm").grid(column=0,row=2, padx=10, pady=10)
+    ttk.Entry(self.frame, width=30, textvariable=self.conf_pass).grid(column=1, row=2, padx=10, pady=10)
 
-    ttk.Button(self.frame, text="Proceed", command=self.go).grid(column=1, row=3)
+    ttk.Button(self.frame, text="Proceed", command=self.go).grid(column=1, row=3, padx=10, pady=10)
 
   def go(self):
     if self.password.get() != self.conf_pass.get():

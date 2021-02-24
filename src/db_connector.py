@@ -1,8 +1,15 @@
 import mysql.connector, sys
+from string_processor import StringProcessor
 
 def perror(s):
   print("ERROR: " + s)
   sys.exit(1)
+
+def enc(s):
+  return StringProcessor.enc_string(s)
+
+def dec(s):
+  return StringProcessor.dec_string(s)
 
 class DBConnector:
   def __init__(self):
@@ -56,6 +63,7 @@ class DBConnector:
 
   def initialize(self, password):
     # Initialize with master password
+    password = enc(password)
     assert not self.is_initialized()
     cursor = self.conn.cursor()
     cursor.execute("INSERT INTO masterpass (value) VALUES (%s)", (password,))
@@ -63,11 +71,15 @@ class DBConnector:
  
   def is_correct_password(self, password):
     assert self.is_initialized()
+    password = enc(password)
     cursor = self.conn.cursor()
     cursor.execute("SELECT * FROM masterpass")
     return (password == cursor.fetchone()[0])
 
   def add_entry(self, name, userid, password):
+    name = enc(name)
+    userid = enc(userid)
+    password = enc(password)
     cursor = self.conn.cursor()
     cursor.execute("INSERT INTO passwords (name,userid,password) VALUES (%s,%s,%s)", (name,userid,password))
     self.conn.commit()
@@ -80,5 +92,9 @@ class DBConnector:
   def get_entries(self):
     cursor = self.conn.cursor()
     cursor.execute("SELECT * FROM passwords")
-    rows = cursor.fetchall()
+    raw_rows = cursor.fetchall()
+    rows = []
+    for d in raw_rows:
+      r = [d[0], dec(d[1]), dec(d[2]), dec(d[3])]
+      rows.append(tuple(r))
     return rows
