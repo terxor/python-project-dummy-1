@@ -47,9 +47,9 @@ class DBConnector:
       cursor.execute("CREATE TABLE IF NOT EXISTS `masterpass` (`value` VARCHAR(50) NOT NULL)")
       query = "CREATE TABLE IF NOT EXISTS `passwords` ("
       query += "`id` INTEGER PRIMARY KEY AUTO_INCREMENT" + ","
-      query += "`name` VARCHAR(50) NOT NULL" + ","
-      query += "`userid` VARCHAR(50) NOT NULL" + ","
-      query += "`password` VARCHAR(50) NOT NULL" + ")"
+      query += "`name` VARCHAR(500) NOT NULL" + ","
+      query += "`userid` VARCHAR(500) NOT NULL" + ","
+      query += "`password` VARCHAR(500) NOT NULL" + ")"
       cursor.execute(query)
     except:
       perror("Some error")
@@ -64,8 +64,8 @@ class DBConnector:
   def initialize(self, password):
     # Initialize with master password
     password = enc(password)
-    assert not self.is_initialized()
     cursor = self.conn.cursor()
+    cursor.execute("DELETE FROM masterpass")
     cursor.execute("INSERT INTO masterpass (value) VALUES (%s)", (password,))
     self.conn.commit()
  
